@@ -56,9 +56,14 @@ public class SoldierBot {
             }
         }
 
-        if (bestScore > 0 && best != null && rc.canAttack(best)) {
-            rc.attack(best);
-            return true;
+        if (best != null) {
+
+            MapInfo info = rc.senseMapInfo(best);
+
+            if (bestScore > 0 && rc.canAttack(best) && !info.getPaint().isAlly()) {
+                rc.attack(best);
+                return true;
+            }
         }
 
         return false;

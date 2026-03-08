@@ -34,9 +34,7 @@ public class Navigation {
 
         Direction[] dirs = Direction.values();
 
-        for (int i = 0; i < dirs.length; i++) {
-
-            Direction d = dirs[rng.nextInt(dirs.length)];
+        for (Direction d : dirs) {
 
             if (rc.canMove(d)) {
                 rc.move(d);

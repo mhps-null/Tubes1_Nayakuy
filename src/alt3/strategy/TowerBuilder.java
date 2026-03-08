@@ -14,15 +14,15 @@ public class TowerBuilder {
 
                 MapLocation ruin = tile.getMapLocation();
 
-                if (rc.canMarkTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin)) {
-
-                    rc.markTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin);
-                    return true;
-                }
-
                 if (rc.canCompleteTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin)) {
 
                     rc.completeTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin);
+                    return true;
+                }
+
+                if (rc.canMarkTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin)) {
+
+                    rc.markTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin);
                     return true;
                 }
             }
