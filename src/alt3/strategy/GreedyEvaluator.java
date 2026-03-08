@@ -10,18 +10,17 @@ public class GreedyEvaluator {
 
         MapLocation loc = tile.getMapLocation();
 
-        // paint expansion
         if (tile.getPaint() == PaintType.EMPTY)
-            score += 6;
+            score += 8;
 
         if (tile.getPaint().isEnemy())
-            score += 5;
+            score += 6;
 
         if (tile.hasRuin())
-            score += 3;
+            score += 10;
 
         if (tile.getPaint().isAlly())
-            score -= 1;
+            score -= 3;
 
         RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 
@@ -31,12 +30,14 @@ public class GreedyEvaluator {
 
                 int dist = loc.distanceSquaredTo(enemy.getLocation());
 
-                if (dist <= 16) { 
-                    score -= 20;
+                if (dist <= 16) {
+                    score -= 25;
                 }
-
             }
         }
+
+        int distToSelf = rc.getLocation().distanceSquaredTo(loc);
+        score -= distToSelf / 3;
 
         return score;
     }

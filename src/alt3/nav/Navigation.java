@@ -12,21 +12,20 @@ public class Navigation {
 
         Direction dir = rc.getLocation().directionTo(target);
 
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            return;
-        }
+        Direction[] tryDirs = new Direction[] {
+                dir,
+                dir.rotateLeft(),
+                dir.rotateRight(),
+                dir.rotateLeft().rotateLeft(),
+                dir.rotateRight().rotateRight()
+        };
 
-        Direction left = dir.rotateLeft();
-        Direction right = dir.rotateRight();
+        for (Direction d : tryDirs) {
 
-        if (rc.canMove(left)) {
-            rc.move(left);
-            return;
-        }
-
-        if (rc.canMove(right)) {
-            rc.move(right);
+            if (rc.canMove(d)) {
+                rc.move(d);
+                return;
+            }
         }
     }
 
@@ -34,7 +33,11 @@ public class Navigation {
 
         Direction[] dirs = Direction.values();
 
-        for (Direction d : dirs) {
+        int start = rng.nextInt(dirs.length);
+
+        for (int i = 0; i < dirs.length; i++) {
+
+            Direction d = dirs[(start + i) % dirs.length];
 
             if (rc.canMove(d)) {
                 rc.move(d);

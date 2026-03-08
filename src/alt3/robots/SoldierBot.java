@@ -8,6 +8,10 @@ public class SoldierBot {
 
     public static void run(RobotController rc) throws GameActionException {
 
+        if (attackEnemyRobot(rc)) {
+            return;
+        }
+
         paintUnderSelf(rc);
 
         if (TowerBuilder.tryBuildTower(rc)) {
@@ -28,6 +32,25 @@ public class SoldierBot {
         Navigation.randomMove(rc);
     }
 
+    static boolean attackEnemyRobot(RobotController rc) throws GameActionException {
+
+        RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+
+        for (RobotInfo enemy : enemies) {
+
+            if (!enemy.getType().isTowerType()) {
+
+                MapLocation loc = enemy.getLocation();
+
+                if (rc.canAttack(loc)) {
+                    rc.attack(loc);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     static void paintUnderSelf(RobotController rc) throws GameActionException {
 
@@ -37,7 +60,6 @@ public class SoldierBot {
             rc.attack(rc.getLocation());
         }
     }
-
 
     static boolean tryPaintBestTile(RobotController rc) throws GameActionException {
 
