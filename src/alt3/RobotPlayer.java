@@ -40,39 +40,76 @@ public class RobotPlayer {
 
     public static void runTower(RobotController rc) throws GameActionException {
 
-        Direction[] dirs = Direction.values();
+        Direction[] dirs = {
+                Direction.NORTH,
+                Direction.NORTHEAST,
+                Direction.EAST,
+                Direction.SOUTHEAST,
+                Direction.SOUTH,
+                Direction.SOUTHWEST,
+                Direction.WEST,
+                Direction.NORTHWEST
+        };
+
+        RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+        int enemyCount = enemies.length;
+
+        int round = rc.getRoundNum();
 
         for (Direction d : dirs) {
 
             MapLocation loc = rc.getLocation().add(d);
 
-            if (!rc.canBuildRobot(UnitType.SOLDIER, loc) &&
-                !rc.canBuildRobot(UnitType.MOPPER, loc) &&
-                !rc.canBuildRobot(UnitType.SPLASHER, loc)) {
-                continue;
+            if (!rc.onTheMap(loc)) continue;
+            if (rc.isLocationOccupied(loc)) continue;
+
+            if (enemyCount >= 4) {
+                if (rc.canBuildRobot(UnitType.SPLASHER, loc)) {
+                    rc.buildRobot(UnitType.SPLASHER, loc);
+                    return;
+                }
             }
 
-            double r = Math.random();
-
-            if (r < 0.80) {
+            if (enemyCount >= 2) {
                 if (rc.canBuildRobot(UnitType.SOLDIER, loc)) {
                     rc.buildRobot(UnitType.SOLDIER, loc);
                     return;
                 }
             }
 
-            else if (r < 0.90) {
+            if (round < 150) {
+                if (rc.canBuildRobot(UnitType.SOLDIER, loc)) {
+                    rc.buildRobot(UnitType.SOLDIER, loc);
+                    return;
+                }
+            }
+
+            if (round < 300) {
+
+                if (rc.canBuildRobot(UnitType.SPLASHER, loc)) {
+                    rc.buildRobot(UnitType.SPLASHER, loc);
+                    return;
+                }
+
                 if (rc.canBuildRobot(UnitType.MOPPER, loc)) {
                     rc.buildRobot(UnitType.MOPPER, loc);
                     return;
                 }
             }
 
-            else {
-                if (rc.canBuildRobot(UnitType.SPLASHER, loc)) {
-                    rc.buildRobot(UnitType.SPLASHER, loc);
-                    return;
-                }
+            if (rc.canBuildRobot(UnitType.SOLDIER, loc)) {
+                rc.buildRobot(UnitType.SOLDIER, loc);
+                return;
+            }
+
+            if (rc.canBuildRobot(UnitType.SPLASHER, loc)) {
+                rc.buildRobot(UnitType.SPLASHER, loc);
+                return;
+            }
+
+            if (rc.canBuildRobot(UnitType.MOPPER, loc)) {
+                rc.buildRobot(UnitType.MOPPER, loc);
+                return;
             }
         }
     }

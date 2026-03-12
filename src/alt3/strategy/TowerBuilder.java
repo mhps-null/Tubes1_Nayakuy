@@ -1,33 +1,63 @@
 package alt3.strategy;
 
 import battlecode.common.*;
+import alt3.nav.Navigation;
 
 public class TowerBuilder {
 
-    public static boolean tryBuildTower(RobotController rc) throws GameActionException {
+public static boolean tryBuildTower(RobotController rc) throws GameActionException {
 
-        MapInfo[] tiles = rc.senseNearbyMapInfos();
+    MapInfo[] tiles = rc.senseNearbyMapInfos();
+    RobotInfo[] allies = rc.senseNearbyRobots(-1, rc.getTeam());
 
-        for (MapInfo tile : tiles) {
+    MapLocation bestRuin = null;
+    int bestScore = -999;
 
-            if (tile.hasRuin()) {
+    for (MapInfo tile : tiles) {
 
-                MapLocation ruin = tile.getMapLocation();
+        if (!tile.hasRuin()) continue;
 
-                if (rc.canCompleteTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin)) {
+        MapLocation ruin = tile.getMapLocation();
 
-                    rc.completeTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin);
-                    return true;
-                }
+        int score = 0;
 
-                if (rc.canMarkTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin)) {
+        int dist = rc.getLocation().distanceSquaredTo(ruin);
+        score += 80 - dist;
 
-                    rc.markTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, ruin);
-                    return true;
-                }
+        int allyNear = 0;
+
+        for (RobotInfo ally : allies) {
+
+            int d = ally.getLocation().distanceSquaredTo(ruin);
+
+            if (d <= 4) {
+                allyNear++;
             }
         }
 
-        return false;
+        if (allyNear >= 3) continue;
+
+        score -= allyNear * 10;
+
+        if (score > bestScore) {
+            bestScore = score;
+            bestRuin = ruin;
+        }
     }
+
+    if (bestRuin == null) return false;
+
+    if (rc.canCompleteTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin)) {
+        rc.completeTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin);
+        return true;
+    }
+
+    if (rc.canMarkTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin)) {
+        rc.markTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin);
+        return true;
+    }
+
+    Navigation.moveToward(rc, bestRuin);
+    return true;
+}
 }

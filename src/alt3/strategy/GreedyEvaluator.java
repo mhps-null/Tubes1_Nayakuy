@@ -9,18 +9,22 @@ public class GreedyEvaluator {
         int score = 0;
 
         MapLocation loc = tile.getMapLocation();
+        PaintType paint = tile.getPaint();
 
-        if (tile.getPaint() == PaintType.EMPTY)
-            score += 7;
-
-        if (tile.getPaint().isEnemy())
+        if (paint.isEnemy()) {
+            score += 18;
+        } 
+        else if (paint == PaintType.EMPTY) {
             score += 10;
+        }
 
-        if (tile.hasRuin())
-            score += 50;
+        if (paint.isAlly()) {
+            score -= 6;
+        }
 
-        if (tile.getPaint().isAlly())
-            score -= 3;
+        if (tile.hasRuin()) {
+            score += 70;
+        }
 
         RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 
@@ -31,16 +35,29 @@ public class GreedyEvaluator {
                 int dist = loc.distanceSquaredTo(enemy.getLocation());
 
                 if (dist <= 16) {
-                    score -= 80;   
+                    score -= 200;
                 }
                 else if (dist <= 25) {
-                    score -= 40;   
+                    score -= 80;
                 }
             }
         }
 
         int distToSelf = rc.getLocation().distanceSquaredTo(loc);
-        score -= distToSelf / 10;
+        score -= distToSelf / 5;
+
+        RobotInfo[] allies = rc.senseNearbyRobots(8, rc.getTeam());
+
+        for (RobotInfo ally : allies) {
+
+            if (ally.getLocation().equals(rc.getLocation())) continue;
+
+            int d = loc.distanceSquaredTo(ally.getLocation());
+
+            if (d <= 2) {
+                score -= 4;
+            }
+        }
 
         return score;
     }

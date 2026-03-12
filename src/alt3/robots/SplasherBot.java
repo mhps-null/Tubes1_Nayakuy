@@ -9,32 +9,45 @@ public class SplasherBot {
     public static void run(RobotController rc) throws GameActionException {
 
         MapInfo[] tiles = rc.senseNearbyMapInfos();
+        RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 
         MapLocation best = null;
-        int bestScore = 0;
+        int bestScore = -999;
 
         for (MapInfo tile : tiles) {
 
             MapLocation loc = tile.getMapLocation();
-
-            int enemyAround = 0;
+            int score = 0;
 
             for (MapInfo other : tiles) {
                 if (other.getPaint().isEnemy()) {
-
                     if (loc.distanceSquaredTo(other.getMapLocation()) <= 2) {
-                        enemyAround++;
+                        score += 2;
                     }
                 }
             }
 
-            if (enemyAround > bestScore) {
-                bestScore = enemyAround;
+            for (RobotInfo enemy : enemies) {
+
+                if (enemy.getType().isTowerType()) continue;
+
+                int dist = loc.distanceSquaredTo(enemy.getLocation());
+
+                if (dist <= 2) {
+                    score += 20;
+                }
+                else if (dist <= 4) {
+                    score += 10;
+                }
+            }
+
+            if (score > bestScore) {
+                bestScore = score;
                 best = loc;
             }
         }
 
-        if (best != null && bestScore >= 3 && rc.canAttack(best)) {
+        if (best != null && bestScore >= 4 && rc.canAttack(best)) {
             rc.attack(best);
             return;
         }
