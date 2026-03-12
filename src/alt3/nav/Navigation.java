@@ -17,7 +17,9 @@ public class Navigation {
                 dir.rotateLeft(),
                 dir.rotateRight(),
                 dir.rotateLeft().rotateLeft(),
-                dir.rotateRight().rotateRight()
+                dir.rotateRight().rotateRight(),
+                dir.rotateLeft().rotateLeft().rotateLeft(),
+                dir.rotateRight().rotateRight().rotateRight()
         };
 
         for (Direction d : tryDirs) {
@@ -27,6 +29,8 @@ public class Navigation {
                 return;
             }
         }
+
+        randomMove(rc);
     }
 
     public static void randomMove(RobotController rc) throws GameActionException {

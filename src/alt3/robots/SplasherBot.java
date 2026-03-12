@@ -2,6 +2,7 @@ package alt3.robots;
 
 import battlecode.common.*;
 import alt3.nav.*;
+import alt3.strategy.*;
 
 public class SplasherBot {
 
@@ -9,19 +10,39 @@ public class SplasherBot {
 
         MapInfo[] tiles = rc.senseNearbyMapInfos();
 
-        int enemyCount = 0;
         MapLocation best = null;
+        int bestScore = 0;
 
         for (MapInfo tile : tiles) {
 
-            if (tile.getPaint().isEnemy()) {
-                enemyCount++;
-                best = tile.getMapLocation();
+            MapLocation loc = tile.getMapLocation();
+
+            int enemyAround = 0;
+
+            for (MapInfo other : tiles) {
+                if (other.getPaint().isEnemy()) {
+
+                    if (loc.distanceSquaredTo(other.getMapLocation()) <= 2) {
+                        enemyAround++;
+                    }
+                }
+            }
+
+            if (enemyAround > bestScore) {
+                bestScore = enemyAround;
+                best = loc;
             }
         }
 
-        if (enemyCount >= 3 && best != null && rc.canAttack(best)) {
+        if (best != null && bestScore >= 3 && rc.canAttack(best)) {
             rc.attack(best);
+            return;
+        }
+
+        MapLocation frontier = FrontierDetector.findNearestFrontier(rc);
+
+        if (frontier != null) {
+            Navigation.moveToward(rc, frontier);
             return;
         }
 

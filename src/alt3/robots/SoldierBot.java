@@ -36,17 +36,25 @@ public class SoldierBot {
 
         RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 
+        RobotInfo best = null;
+        int bestDist = Integer.MAX_VALUE;
+
         for (RobotInfo enemy : enemies) {
 
             if (!enemy.getType().isTowerType()) {
 
-                MapLocation loc = enemy.getLocation();
+                int dist = rc.getLocation().distanceSquaredTo(enemy.getLocation());
 
-                if (rc.canAttack(loc)) {
-                    rc.attack(loc);
-                    return true;
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    best = enemy;
                 }
             }
+        }
+
+        if (best != null && rc.canAttack(best.getLocation())) {
+            rc.attack(best.getLocation());
+            return true;
         }
 
         return false;
@@ -56,7 +64,7 @@ public class SoldierBot {
 
         MapInfo tile = rc.senseMapInfo(rc.getLocation());
 
-        if (!tile.getPaint().isAlly() && rc.canAttack(rc.getLocation())) {
+        if (tile.getPaint() == PaintType.EMPTY && rc.canAttack(rc.getLocation())) {
             rc.attack(rc.getLocation());
         }
     }
@@ -69,6 +77,8 @@ public class SoldierBot {
         int bestScore = -999;
 
         for (MapInfo tile : tiles) {
+
+            if (tile.getPaint().isAlly()) continue;
 
             int score = GreedyEvaluator.scoreTile(rc, tile);
 

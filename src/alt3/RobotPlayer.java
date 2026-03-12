@@ -46,19 +46,33 @@ public class RobotPlayer {
 
             MapLocation loc = rc.getLocation().add(d);
 
-            if (rc.canBuildRobot(UnitType.SOLDIER, loc)) {
-                rc.buildRobot(UnitType.SOLDIER, loc);
-                return;
+            if (!rc.canBuildRobot(UnitType.SOLDIER, loc) &&
+                !rc.canBuildRobot(UnitType.MOPPER, loc) &&
+                !rc.canBuildRobot(UnitType.SPLASHER, loc)) {
+                continue;
             }
 
-            if (rc.canBuildRobot(UnitType.MOPPER, loc)) {
-                rc.buildRobot(UnitType.MOPPER, loc);
-                return;
+            double r = Math.random();
+
+            if (r < 0.80) {
+                if (rc.canBuildRobot(UnitType.SOLDIER, loc)) {
+                    rc.buildRobot(UnitType.SOLDIER, loc);
+                    return;
+                }
             }
 
-            if (rc.canBuildRobot(UnitType.SPLASHER, loc)) {
-                rc.buildRobot(UnitType.SPLASHER, loc);
-                return;
+            else if (r < 0.90) {
+                if (rc.canBuildRobot(UnitType.MOPPER, loc)) {
+                    rc.buildRobot(UnitType.MOPPER, loc);
+                    return;
+                }
+            }
+
+            else {
+                if (rc.canBuildRobot(UnitType.SPLASHER, loc)) {
+                    rc.buildRobot(UnitType.SPLASHER, loc);
+                    return;
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package alt3.robots;
 
 import battlecode.common.*;
 import alt3.nav.*;
+import alt3.strategy.*;
 
 public class MopperBot {
 
@@ -20,6 +21,13 @@ public class MopperBot {
                     return;
                 }
             }
+        }
+
+        MapLocation frontier = FrontierDetector.findNearestFrontier(rc);
+
+        if (frontier != null) {
+            Navigation.moveToward(rc, frontier);
+            return;
         }
 
         Navigation.randomMove(rc);

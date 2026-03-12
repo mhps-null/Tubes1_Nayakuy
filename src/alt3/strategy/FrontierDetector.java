@@ -9,7 +9,7 @@ public class FrontierDetector {
         MapInfo[] tiles = rc.senseNearbyMapInfos();
 
         MapLocation best = null;
-        int bestDist = Integer.MAX_VALUE;
+        int bestScore = -999;
 
         for (MapInfo tile : tiles) {
 
@@ -23,8 +23,14 @@ public class FrontierDetector {
 
                 int dist = rc.getLocation().distanceSquaredTo(loc);
 
-                if (dist < bestDist) {
-                    bestDist = dist;
+                int score = 50 - dist;
+
+                if (tile.getPaint().isEnemy()) {
+                    score += 10;
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
                     best = loc;
                 }
             }
