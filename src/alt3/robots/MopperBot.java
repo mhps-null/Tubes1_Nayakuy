@@ -11,7 +11,7 @@ public class MopperBot {
         MapInfo[] tiles = rc.senseNearbyMapInfos();
 
         MapLocation best = null;
-        int bestDist = Integer.MAX_VALUE;
+        int bestScore = Integer.MIN_VALUE;
 
         for (MapInfo tile : tiles) {
 
@@ -20,8 +20,18 @@ public class MopperBot {
                 MapLocation loc = tile.getMapLocation();
                 int dist = rc.getLocation().distanceSquaredTo(loc);
 
-                if (dist < bestDist) {
-                    bestDist = dist;
+                int score = -dist;
+
+                for (MapInfo other : tiles) {
+                    if (other.getPaint().isEnemy()) {
+                        if (loc.distanceSquaredTo(other.getMapLocation()) <= 2) {
+                            score += 5;
+                        }
+                    }
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
                     best = loc;
                 }
             }

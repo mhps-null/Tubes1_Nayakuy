@@ -47,7 +47,7 @@ public class SplasherBot {
             }
         }
 
-        if (best != null && bestScore >= 4 && rc.canAttack(best)) {
+        if (best != null && bestScore >= 2 && rc.canAttack(best)) {
             rc.attack(best);
             return;
         }

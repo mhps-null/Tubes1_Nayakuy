@@ -5,59 +5,59 @@ import alt3.nav.Navigation;
 
 public class TowerBuilder {
 
-public static boolean tryBuildTower(RobotController rc) throws GameActionException {
+    public static boolean tryBuildTower(RobotController rc) throws GameActionException {
 
-    MapInfo[] tiles = rc.senseNearbyMapInfos();
-    RobotInfo[] allies = rc.senseNearbyRobots(-1, rc.getTeam());
+        MapInfo[] tiles = rc.senseNearbyMapInfos();
+        RobotInfo[] allies = rc.senseNearbyRobots(-1, rc.getTeam());
 
-    MapLocation bestRuin = null;
-    int bestScore = -999;
+        MapLocation bestRuin = null;
+        int bestScore = -999;
 
-    for (MapInfo tile : tiles) {
+        for (MapInfo tile : tiles) {
 
-        if (!tile.hasRuin()) continue;
+            if (!tile.hasRuin()) continue;
 
-        MapLocation ruin = tile.getMapLocation();
+            MapLocation ruin = tile.getMapLocation();
 
-        int score = 0;
+            int score = 0;
 
-        int dist = rc.getLocation().distanceSquaredTo(ruin);
-        score += 80 - dist;
+            int dist = rc.getLocation().distanceSquaredTo(ruin);
+            score += 80 - dist;
 
-        int allyNear = 0;
+            int allyNear = 0;
 
-        for (RobotInfo ally : allies) {
+            for (RobotInfo ally : allies) {
 
-            int d = ally.getLocation().distanceSquaredTo(ruin);
+                int d = ally.getLocation().distanceSquaredTo(ruin);
 
-            if (d <= 4) {
-                allyNear++;
+                if (d <= 4) {
+                    allyNear++;
+                }
+            }
+
+            if (allyNear >= 4) continue;
+
+            score -= allyNear * 10;
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestRuin = ruin;
             }
         }
 
-        if (allyNear >= 3) continue;
+        if (bestRuin == null) return false;
 
-        score -= allyNear * 10;
-
-        if (score > bestScore) {
-            bestScore = score;
-            bestRuin = ruin;
+        if (rc.canCompleteTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin)) {
+            rc.completeTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin);
+            return true;
         }
-    }
 
-    if (bestRuin == null) return false;
+        if (rc.canMarkTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin)) {
+            rc.markTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin);
+            return true;
+        }
 
-    if (rc.canCompleteTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin)) {
-        rc.completeTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin);
+        Navigation.moveToward(rc, bestRuin);
         return true;
     }
-
-    if (rc.canMarkTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin)) {
-        rc.markTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, bestRuin);
-        return true;
-    }
-
-    Navigation.moveToward(rc, bestRuin);
-    return true;
-}
 }

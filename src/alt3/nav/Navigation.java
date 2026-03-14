@@ -40,11 +40,11 @@ public class Navigation {
             int score = 0;
 
             if (info.getPaint().isEnemy()) {
-                score -= 20;
+                score -= 6;
             }
 
             int dist = next.distanceSquaredTo(target);
-            score -= dist;
+            score -= dist * 2;
 
             for (RobotInfo enemy : enemies) {
 
@@ -68,7 +68,7 @@ public class Navigation {
                 int dAlly = next.distanceSquaredTo(ally.getLocation());
 
                 if (dAlly <= 2) {
-                    score -= 6;
+                    score -= 20;
                 }
             }
 

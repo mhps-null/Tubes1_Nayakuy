@@ -24,7 +24,7 @@ public static void run(RobotController rc) throws GameActionException {
             return;
         }
 
-        if (dist <= 25) {
+        if (dist <= 36) {
             Navigation.moveToward(rc, targetEnemy.getLocation());
             return;
         }
