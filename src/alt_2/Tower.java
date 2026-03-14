@@ -33,7 +33,6 @@ public class Tower {
             }
         }
 
-        // FASE SELF-UPGRADE
         if (rc.isActionReady()) {
             if (rc.getChips() > 3000) { 
                 if (rc.canUpgradeTower(rc.getLocation())) {
@@ -71,17 +70,24 @@ public class Tower {
         int slot = RobotPlayer.spawnCount % 4;
         UnitType toSpawn;
         
-        if (slot == 0 || slot == 1) toSpawn = UnitType.SOLDIER; // Double Soldier!
-        else if (slot == 2) toSpawn = UnitType.MOPPER;
-        else toSpawn = (rc.getChips() >= 500) ? UnitType.SPLASHER : UnitType.MOPPER;
+        switch (slot) {
+            case 0:
+            case 1:
+                toSpawn = UnitType.SOLDIER;
+                break;
+            case 2:
+                toSpawn = UnitType.MOPPER;
+                break;
+            case 3:
+            default:
+                toSpawn = (rc.getChips() >= 500) ? UnitType.SPLASHER : UnitType.MOPPER;
+                break;
+        }
 
         MapLocation spawnLoc = Utils.tileToward(rc, enemyBaseEstimate, toSpawn);
         if (spawnLoc != null && rc.canBuildRobot(toSpawn, spawnLoc)) {
             rc.buildRobot(toSpawn, spawnLoc);
             RobotPlayer.spawnCount++; 
-            
-            // OPTIONAL: Kirim pesan singkat ke robot yang baru lahir untuk segera menjauh
-            // (Ini membantu mencegah penumpukan di mulut tower)
         }
     }
 }

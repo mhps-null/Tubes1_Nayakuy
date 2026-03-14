@@ -15,7 +15,6 @@ public class Utils {
         return best;
     }
 
-    // FUNGSI BARU: Hanya mencari Paint Tower!
     public static RobotInfo nearestAllyPaintTower(RobotController rc) throws GameActionException {
         RobotInfo[] allies = rc.senseNearbyRobots(-1, rc.getTeam());
         RobotInfo best = null; int bestDist = Integer.MAX_VALUE;
@@ -52,7 +51,6 @@ public class Utils {
             targetDir.rotateLeft().rotateLeft(), targetDir.rotateRight().rotateRight()
         };
         
-        // PASS 1: Prioritas Tertinggi -> Jalan di atas Cat Sekutu (Paint Surfing)
         for (Direction d : tryDirs) {
             if (rc.canMove(d)) {
                 PaintType pt = rc.senseMapInfo(rc.getLocation().add(d)).getPaint();
@@ -62,7 +60,6 @@ public class Utils {
             }
         }
         
-        // PASS 2: Prioritas Kedua -> Jalan di atas Tile Kosong (Lebih aman dari cat musuh)
         for (Direction d : tryDirs) {
             if (rc.canMove(d)) {
                 PaintType pt = rc.senseMapInfo(rc.getLocation().add(d)).getPaint();
@@ -72,14 +69,12 @@ public class Utils {
             }
         }
         
-        // PASS 3: Terpaksa jalan di cat musuh (daripada nyangkut)
         for (Direction d : tryDirs) {
             if (rc.canMove(d)) { 
                 rc.move(d); return true; 
             }
         }
 
-        // PASS 4: ANTI-STUCK (Mundur/Wiggle jika jalan depan buntu total)
         Direction[] escapeDirs = {
             targetDir.rotateLeft().rotateLeft().rotateLeft(), 
             targetDir.rotateRight().rotateRight().rotateRight(), 

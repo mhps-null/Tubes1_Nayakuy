@@ -8,15 +8,11 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 
 public class Splasher {
-    // Memori Status
     static boolean isRefilling = false;
 
     public static void run(RobotController rc) throws GameActionException {
         rc.setIndicatorString("Splasher Vanguard!");
 
-        // ═══════════════════════════════════════════════════════════
-        // P0: STATE MACHINE REFILL
-        // ═══════════════════════════════════════════════════════════
         if (rc.getPaint() <= 50) isRefilling = true;
         if (rc.getPaint() >= 250) isRefilling = false;
 
@@ -36,19 +32,15 @@ public class Splasher {
                 }
                 return; 
             } else {
-                isRefilling = false; // Tower kosong, batal antre
+                isRefilling = false; 
             }
         }
 
         RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
         MapInfo[] nearby = rc.senseNearbyMapInfos();
 
-        // ═══════════════════════════════════════════════════════════
-        // BRANCH A: BISA MENEMBAK (Action Ready)
-        // ═══════════════════════════════════════════════════════════
         if (rc.isActionReady()) {
             
-            // A1: Tower musuh HP rendah dalam range
             RobotInfo weakTower = null;
             for (RobotInfo e : enemies) {
                 if (!e.getType().isTowerType() || e.getHealth() >= 500) continue;
@@ -58,7 +50,6 @@ public class Splasher {
             }
             if (weakTower != null) { rc.attack(weakTower.getLocation()); return; }
 
-            // A2: GREEDY COVERAGE MAXIMIZER (Kalkulator Skor Area)
             MapLocation bestCenter = null; 
             int bestScore = 0; 
             
@@ -72,10 +63,10 @@ public class Splasher {
                     int distToCenter = center.distanceSquaredTo(t2.getMapLocation());
                     if (distToCenter <= 4) { 
                         PaintType pt = t2.getPaint();
-                        if (distToCenter <= 2) { // Inner Blast
+                        if (distToCenter <= 2) { 
                             if (pt.isEnemy()) score += 3; 
                             else if (pt == PaintType.EMPTY) score += 1;
-                        } else { // Outer Blast
+                        } else { 
                             if (pt == PaintType.EMPTY) score += 1;
                         }
                     }
@@ -89,19 +80,14 @@ public class Splasher {
             
             if (bestCenter != null) { rc.attack(bestCenter); return; }
 
-            // A3: Tower musuh biasa
             RobotInfo anyTower = Utils.weakestEnemyTower(enemies);
             if (anyTower != null && rc.getLocation().distanceSquaredTo(anyTower.getLocation()) <= 4 && rc.canAttack(anyTower.getLocation())) {
                 rc.attack(anyTower.getLocation()); return;
             }
         }
 
-        // ═══════════════════════════════════════════════════════════
-        // BRANCH B: NAVIGASI & RADAR CERDAS
-        // ═══════════════════════════════════════════════════════════
         MapLocation enemyTarget = Utils.getEnemyEstimate(rc, RobotPlayer.symmetryMode, RobotPlayer.spawnTowerLoc);
         
-        // Radar Cerdas: Instant Switch
         if (rc.canSenseLocation(enemyTarget)) {
             RobotInfo botAtTarget = rc.senseRobotAtLocation(enemyTarget);
             if (botAtTarget == null || !botAtTarget.getType().isTowerType() || botAtTarget.getTeam() == rc.getTeam()) {
@@ -112,7 +98,6 @@ public class Splasher {
         }
 
         if (!rc.isActionReady() && rc.isMovementReady()) {
-            // Mundur sedikit saat cooldown panjanng jika ada musuh
             if (enemies.length > 0) Utils.moveGreedy(rc, enemies[0].getLocation().directionTo(rc.getLocation()));
             else {
                 if (rc.getLocation().distanceSquaredTo(enemyTarget) < 16) {

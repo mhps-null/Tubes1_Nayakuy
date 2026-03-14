@@ -15,11 +15,7 @@ public class Mopper {
         rc.setIndicatorString("Mopper Vanguard (Pantang Pulang!)");
 
         RobotInfo[] allAllies = rc.senseNearbyRobots(-1, rc.getTeam());
-        RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 
-        // ═══════════════════════════════════════════════════════════
-        // P0: COMBAT MEDIC (Pakai sisa cat dari hasil isap musuh)
-        // ═══════════════════════════════════════════════════════════
         for (RobotInfo a : rc.senseNearbyRobots(2, rc.getTeam())) {
             if (a.getType().isTowerType()) continue;
             if (a.getPaintAmount() < 10 && rc.isActionReady() && rc.getPaint() >= 50) {
@@ -30,9 +26,6 @@ public class Mopper {
             }
         }
 
-        // ═══════════════════════════════════════════════════════════
-        // P2: COMBAT (Mop / Swing) -> DI SINI MOPPER LIFESTEAL CAT MUSUH!
-        // ═══════════════════════════════════════════════════════════
         RobotInfo[] combatEnemies = rc.senseNearbyRobots(2, rc.getTeam().opponent());
         if (combatEnemies.length > 0 && rc.isActionReady()) {
             Direction bestSwing = null; int bestCount = 0;
@@ -59,9 +52,6 @@ public class Mopper {
             }
         }
 
-        // ═══════════════════════════════════════════════════════════
-        // P3: VANGUARD (Buka jalan dengan hapus cat musuh)
-        // ═══════════════════════════════════════════════════════════
         MapInfo[] nearbyTiles = rc.senseNearbyMapInfos();
         MapLocation enemyPaintTile = null; int bestDist = Integer.MAX_VALUE;
         for (MapInfo tile : nearbyTiles) {
@@ -77,9 +67,6 @@ public class Mopper {
             }
         }
 
-        // ═══════════════════════════════════════════════════════════
-        // P4: BANGUN RUINS
-        // ═══════════════════════════════════════════════════════════
         MapLocation[] ruins = rc.senseNearbyRuins(-1);
         for (MapLocation ruin : ruins) {
             if (rc.senseRobotAtLocation(ruin) != null) continue;
@@ -96,9 +83,6 @@ public class Mopper {
             return;
         }
 
-        // ═══════════════════════════════════════════════════════════
-        // NAVIGASI & RADAR CERDAS (Ikuti Soldier atau cari Base)
-        // ═══════════════════════════════════════════════════════════
         RobotInfo nearestSoldier = null; int minDist = Integer.MAX_VALUE;
         for (RobotInfo r : allAllies) {
             if (r.getType() != UnitType.SOLDIER) continue;
@@ -111,7 +95,6 @@ public class Mopper {
         } else {
             MapLocation enemyTarget = Utils.getEnemyEstimate(rc, RobotPlayer.symmetryMode, RobotPlayer.spawnTowerLoc);
             
-            // Radar Cerdas: Instant Switch
             if (rc.canSenseLocation(enemyTarget)) {
                 RobotInfo botAtTarget = rc.senseRobotAtLocation(enemyTarget);
                 if (botAtTarget == null || !botAtTarget.getType().isTowerType() || botAtTarget.getTeam() == rc.getTeam()) {

@@ -11,15 +11,10 @@ import battlecode.common.RobotInfo;
 import battlecode.common.UnitType;
 
 public class Soldier {
-    // Memori Status
     static boolean isRefilling = false;
 
     public static void run(RobotController rc) throws GameActionException {
         rc.setIndicatorString("Soldier Menyerang!");
-
-        // ═══════════════════════════════════════════════════════════
-        // P0: STATE MACHINE REFILL (Isi Full atau Mati!)
-        // ═══════════════════════════════════════════════════════════
         if (rc.getPaint() <= 40) isRefilling = true;
         if (rc.getPaint() >= 160) isRefilling = false;
 
@@ -37,9 +32,9 @@ public class Soldier {
                 } else {
                     if (rc.isMovementReady()) Utils.moveGreedy(rc, paintTower.getLocation());
                 }
-                return; // Sedang fokus antre, abaikan yang lain
+                return; 
             } else {
-                isRefilling = false; // Tower kosong/jauh? Batal antre, nekat maju!
+                isRefilling = false; 
             }
         }
 
@@ -55,9 +50,16 @@ public class Soldier {
             int confirmed = Utils.hitungSimetriDariObservasi(rc, enemies[0].getLocation(), RobotPlayer.spawnTowerLoc);
             RobotPlayer.symmetryMode = confirmed;
             RobotInfo tower = Utils.nearestAllyTower(rc);
+            
             if (tower != null) {
-                int symMsg = (confirmed << 14) | (Constants.MSG_SYMMETRY << 12);
-                int enemyMsg = (enemies[0].getLocation().y << 6) | enemies[0].getLocation().x | (Constants.MSG_ENEMY << 12);
+                int symType = Constants.MSG_SYMMETRY << 12;
+                int symData = confirmed << 14;
+                int symMsg  = symData | symType;
+
+                MapLocation enLoc = enemies[0].getLocation();
+                int enemyType = Constants.MSG_ENEMY << 12;
+                int enemyMsg  = (enLoc.y << 6) | enLoc.x | enemyType;
+
                 if (rc.canSendMessage(tower.getLocation(), symMsg)) rc.sendMessage(tower.getLocation(), symMsg);
                 if (rc.canSendMessage(tower.getLocation(), enemyMsg)) rc.sendMessage(tower.getLocation(), enemyMsg);
             }
@@ -102,17 +104,11 @@ public class Soldier {
             break; 
         }
 
-        // ═══════════════════════════════════════════════════════════
-        // NAVIGASI & RADAR CERDAS (Ganti target instan jika tower hancur)
-        // ═══════════════════════════════════════════════════════════
         MapLocation enemyTarget = Utils.getEnemyEstimate(rc, RobotPlayer.symmetryMode, RobotPlayer.spawnTowerLoc);
-        
-        // Jika titik target sudah masuk dalam jarak pandang kita...
+
         if (rc.canSenseLocation(enemyTarget)) {
             RobotInfo botAtTarget = rc.senseRobotAtLocation(enemyTarget);
-            // Jika di sana KOSONG, atau isinya BUKAN TOWER MUSUH (berarti sudah hancur)
             if (botAtTarget == null || !botAtTarget.getType().isTowerType() || botAtTarget.getTeam() == rc.getTeam()) {
-                // INSTANT SWITCH! Langsung putar arah ke kemungkinan simetri peta lainnya!
                 RobotPlayer.symmetryMode = (RobotPlayer.symmetryMode + 1) % 3;
                 RobotPlayer.roundsNearTarget = 0;
                 enemyTarget = Utils.getEnemyEstimate(rc, RobotPlayer.symmetryMode, RobotPlayer.spawnTowerLoc);
@@ -132,9 +128,6 @@ public class Soldier {
             }
         }
 
-        // ═══════════════════════════════════════════════════════════
-        // SAMBIL JALAN: CAT UBIN KOSONG DI BAWAHNYA AGAR PENALTI BERKURANG
-        // ═══════════════════════════════════════════════════════════
         if (rc.isActionReady()) {
             MapInfo cur = rc.senseMapInfo(rc.getLocation());
             if (cur.getPaint() == PaintType.EMPTY && rc.canAttack(rc.getLocation())) rc.attack(rc.getLocation(), false);
