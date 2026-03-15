@@ -8,6 +8,7 @@ import battlecode.common.PaintType;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.UnitType;
+import battlecode.common.Clock;
 
 public class RobotPlayer {
 
